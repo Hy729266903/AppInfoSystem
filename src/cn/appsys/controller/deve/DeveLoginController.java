@@ -9,6 +9,6 @@ public class DeveLoginController {
 	
 	@RequestMapping("/toLogin")
 	public String login() {
-		return "devlogin";
+		return "login";
 	}
 }
