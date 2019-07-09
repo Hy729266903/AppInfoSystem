@@ -55,9 +55,7 @@
 	
 	
 	
-	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
-		<property name="basePackage" value="cn.appsys.dao"></property>
-	</bean>
+	
 	
 	<!-- 定义一个切入点, 将声明式事务管理切入到指定的包、类中的方法里 -->
 	<!-- <aop:pointcut expression="execution(* cn.appsys.service..*(..))" id="pointcut"/> -->

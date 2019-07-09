@@ -16,7 +16,7 @@
 
 	<!-- 1、会对cn.ch10.controller包及其子包里的所有类进行扫描，一旦发现类上面使用@Controller注解进行标注，
 		就把这个类注册成为bean的组件对象 -->
-	<context:component-scan base-package="cn.appsys.controller"/>
+	<context:component-scan base-package="cn.appsys.controller**"/>
 	<!-- 2、让当前项目支持SpringMVC的注解，
 		如@Controller｜@RequestMapping|@RequestParam|@ResponseBody -->
 	<mvc:annotation-driven conversion-service="myConversionService">
@@ -51,13 +51,13 @@
 		</mvc:message-converters>		
 	</mvc:annotation-driven>
 	
-	<mvc:interceptors>
+	<!-- <mvc:interceptors>
 		<mvc:interceptor>
-			<!-- 如果访问的路径中包含/user/关键字，那么当前请求就会被拦截器给拦截 -->
+			如果访问的路径中包含/user/关键字，那么当前请求就会被拦截器给拦截
 			<mvc:mapping path="/user/**"/>
 			<bean class="cn.appsys.interceptor.SysInterceptor" />
 		</mvc:interceptor>
-	</mvc:interceptors>
+	</mvc:interceptors> -->
 
 	<!-- 配置多视图解析器 -->
 	<bean class="org.springframework.web.servlet.view.ContentNegotiatingViewResolver">
