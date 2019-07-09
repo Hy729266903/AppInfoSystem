@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xsi:schemaLocation="http://www.springframework.org/schema/aop 
+		http://www.springframework.org/schema/aop/spring-aop-3.2.xsd
+		http://www.springframework.org/schema/mvc 
+		http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd
+		http://www.springframework.org/schema/beans 
+		http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/tx 
+		http://www.springframework.org/schema/tx/spring-tx-3.2.xsd
+		http://www.springframework.org/schema/context 
+		http://www.springframework.org/schema/context/spring-context-3.2.xsd">
+
+	<!-- 1、会对cn.ch10.controller包及其子包里的所有类进行扫描，一旦发现类上面使用@Controller注解进行标注，
+		就把这个类注册成为bean的组件对象 -->
+	<context:component-scan base-package="cn.appsys.controller"/>
+	<!-- 2、让当前项目支持SpringMVC的注解，
+		如@Controller｜@RequestMapping|@RequestParam|@ResponseBody -->
+	<mvc:annotation-driven conversion-service="myConversionService">
+		<!-- 配置消息转换器,   message 消息   converters 转换器 -->
+		<mvc:message-converters>
+			<!-- 1、配置【字符串消息转换器】用于解决JSON格式数据中出现中文乱码问题 -->
+			<bean class="org.springframework.http.converter.StringHttpMessageConverter">
+				<property name="supportedMediaTypes">
+					<list>
+						<value>application/json;charset=UTF-8</value>
+					</list>
+				</property>
+			</bean>
+			
+			<!-- 2、配置【FastJson消息转换器】用于解决JSON传递过程中的日期格式问题 -->
+			<bean class="com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter">
+				<property name="supportedMediaTypes">
+					<!-- 设置所支持的媒体类型 -->
+					<list>
+						<value>text/html;charset=UTF-8</value>
+						<value>application/json</value>
+					</list>
+				</property>
+				<property name="features">
+					<list>
+						<!-- 如果JSON数据中有日期格式的数据，那么将这些日期格式的数据按FastJson默认的日期格式进行转换
+								FastJson默认的日期格式是：yyyy-MM-dd HH:mm:ss -->
+						<value>WriteDateUseDateFormat</value>
+					</list>
+				</property>
+			</bean> 
+		</mvc:message-converters>		
+	</mvc:annotation-driven>
+	
+	<mvc:interceptors>
+		<mvc:interceptor>
+			<!-- 如果访问的路径中包含/user/关键字，那么当前请求就会被拦截器给拦截 -->
+			<mvc:mapping path="/user/**"/>
+			<bean class="cn.appsys.interceptor.SysInterceptor" />
+		</mvc:interceptor>
+	</mvc:interceptors>
+
+	<!-- 配置多视图解析器 -->
+	<bean class="org.springframework.web.servlet.view.ContentNegotiatingViewResolver">
+		<!-- 判断请求的MIME类型是什么？ JSON/HTML/XML 
+			如果处理方法中返回值是集合、对象等，就JSON
+			如果返回值中HTML代码，MIME就是HTML
+		-->
+		<property name="favorParameter" value="true"/>
+		<property name="defaultContentType" value="text/html"/>
+		<property name="mediaTypes">
+			<!-- 设置所支持媒体类型 -->
+			<map>
+				<entry key="json" value="application/json;charset=UTF-8"></entry>
+				<entry key="html" value="text/html;charset=UTF-8"></entry>
+				<entry key="xml" value="application/xml;charset=UTF-8"></entry>
+			</map>
+		</property>
+		<property name="viewResolvers">
+			<!-- 配置视图解析器 -->
+			<list>
+				<!-- 3、配置SpringMVC的内部资源视图解析器 -->
+				<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+					<property name="prefix" value="/WEB-INF/jsp/"/>
+					<property name="suffix" value=".jsp"/>
+				</bean>
+			</list>
+		</property>
+	</bean>
+	
+	<!-- 配置自定义的ConversionService -->
+	<bean id="myConversionService" class="org.springframework.context.support.ConversionServiceFactoryBean">
+		<property name="converters">
+			<list>
+				<bean class="cn.appsys.tools.StringToDateConverter">
+					<!-- 将"yyyy-MM-dd"复制给StringToDateConverter类中的datePattern -->
+					<constructor-arg type="java.lang.String" value="yyyy-MM-dd"></constructor-arg>
+				</bean>
+			</list>
+		</property>
+	
+	</bean>
+
+	<!-- 4、使用mvc:resource标签解决静态资源引入问题 
+			1) location本地静态资源文件所在目录
+			2) 将静态资源映射到指定的路径(/statics)下
+		-->
+	<mvc:resources location="/statics/" mapping="/statics/**"/>
+	<!-- 5、配置全局异常 -->
+	<bean class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+		<property name="exceptionMappings">
+			<props>
+				<prop key="java.lang.NullPointerException">error</prop>
+				<prop key="java.lang.RuntimeException">login</prop>
+				<prop key="java.lang.ArithmeticExce	ption">error</prop>
+				<prop key="java.lang.NumberFormatException">error</prop>
+				<prop key="java.lang.ArrayIndexOutOfBoundsException">error</prop>
+			</props>
+		</property>	
+	</bean>
+	
+	<!-- 配置用于文件上传的解析器 -->
+	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<!-- 设置文件上传时，上传文件的最大尺寸，以字节为单位，1024字节等于1KB，  5000000字节 为500KB -->
+		<property name="maxUploadSize" value="5000000"/>
+		<property name="defaultEncoding" value="UTF-8"/>
+	</bean>
+	
+</beans>
