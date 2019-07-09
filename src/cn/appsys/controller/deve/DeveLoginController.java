@@ -36,8 +36,13 @@ public class DeveLoginController {
 			@RequestParam("devPassword") String devPassword,
 			HttpServletRequest request) {
 			DevUser user = deveLoginService.login(devCode, devPassword);
+			if (user != null) {
+				return "developer/main";
+			}else {
+				return "devlogin";
+			}
 		
-			return "developer/main";
+			
 		
 		
 	}
