@@ -3,6 +3,7 @@ package cn.appsys.controller.deve;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -41,19 +42,28 @@ public class DeveLoginController {
 	public String doLogin(Model model,
 			@RequestParam("devCode") String devCode,
 			@RequestParam("devPassword") String devPassword,
-			HttpServletRequest request) {
+			HttpSession session) {
 			DevUser user = deveLoginService.login(devCode, devPassword);
 			if (user != null) {
-				request.setAttribute("user", user);
+				session.setAttribute("user", user);
 				return "developer/main";
 			}else {
 				model.addAttribute("error", "账号或密码错误！");
 				return "devlogin";
 			}
 		
-			
-		
-		
 	}
+	
+	/**
+	 * 注销
+	 * @param session
+	 * @return
+	 */
+	@RequestMapping("/logOut")
+	public String logOut(HttpSession session) {
+		session.removeAttribute("user");
+		return "devlogin";
+	}
+
 
 }

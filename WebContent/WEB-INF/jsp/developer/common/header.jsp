@@ -55,7 +55,7 @@
 						</div>
 						<div class="profile_info">
 							<span>Welcome,</span>
-							<h2>${devUserSession.devCode }</h2>
+							<h2>${sessionScope.user.devCode }</h2>
 						</div>
 					</div>
 					<!-- /menu profile quick info -->
@@ -81,7 +81,7 @@
 										class="fa fa-chevron-down"></span>
 								</a>
 									<ul class="nav child_menu">
-										<li><a href="${pageContext.request.contextPath }/dev/flatform/app/list">APP维护</a>
+										<li><a href="${pageContext.request.contextPath }/info/appInfoList">APP维护</a>
 										</li>
 									</ul></li>
 							</ul>
@@ -125,7 +125,7 @@
 									class=" fa fa-angle-down"></span> </a>
 								<ul class="dropdown-menu dropdown-usermenu pull-right">
 									<li><a
-										href="${pageContext.request.contextPath }/dev/logout"><i
+										href="${pageContext.request.contextPath }/deve/logOut"><i
 											class="fa fa-sign-out pull-right"></i> Log Out</a>
 									</li>
 								</ul></li>
