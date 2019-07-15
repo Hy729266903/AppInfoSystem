@@ -10,6 +10,8 @@ import cn.appsys.pojo.AppInfo;
 
 public interface DeveAppInfoMapper {
 	
+	
+	
 	/**
 	 * 修改APP信息
 	 * @param appInfo

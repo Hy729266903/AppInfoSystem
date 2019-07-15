@@ -4,8 +4,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="cn.appsys.dao.deve.appinfo.DeveAppInfoMapper">
-
-
+	
+	
+	
 	<!-- 保存修改信息 -->
 	<update id="modifyAppInfo" parameterType="AppInfo">
 		UPDATE `appinfodb`.`app_info`

@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.tomcat.util.bcel.classfile.Constant;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
+
 
 import com.sun.org.apache.xml.internal.resolver.helpers.PublicId;
 import com.sun.scenario.effect.impl.sw.sse.SSEBlend_ADDPeer;
@@ -56,10 +58,159 @@ public class DeveAppController {
 	private AppVersionService appVersionService;
 	
 	
+	/**
+	 * 删除
+	 * @param id
+	 * @return
+	 */
+	@RequestMapping(value = "/delapp")
+	@ResponseBody
+	public Object delApp(@RequestParam String id) {
+		Map<String, String> resultMap = new HashMap<String, String>();
+		if (StringUtils.isEmpty(id)) {
+			//StringUtils.isEmpty(id)
+			resultMap.put("delResult", "notexist");
+		} else {
+			try {
+				if (appVersionService.deleteAppInfoById(Integer.parseInt(id))>0)
+					resultMap.put("delResult", "true");
+				else
+					resultMap.put("delResult", "false");
+			} catch (NumberFormatException e) {
+				e.printStackTrace();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		return resultMap;
+	}
+
+	
+	
+	/**
+	 * 查看app信息
+	 * 
+	 * @param id
+	 * @param model
+	 * @return
+	 */
+	@RequestMapping(value="/appview/{id}",method=RequestMethod.GET)
+	public String view(@PathVariable String id,Model model){
+		AppInfo appInfo = null;
+		List<AppVersion> appVersionList = null;
+		try {
+			appInfo = deveAppInfoService.queryInfoByIdAndApk(Integer.parseInt(id));
+			appVersionList = appVersionService.getAppVersionById(Integer.parseInt(id));
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+		model.addAttribute("appVersionList", appVersionList);
+		model.addAttribute(appInfo);
+		return "developer/appinfoview";
+	}
+
+	
+	/**
+	 * 保存修改apk文件
+	 * @param appVersion
+	 * @param session
+	 * @param attach
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping("/appVersionModifySave")
+	public String appVersionModifySave(AppVersion appVersion,HttpSession session,
+			@RequestParam("attach")MultipartFile attach,HttpServletRequest request) {
+		String downloadLink =  null;
+		String apkLocPath = null;
+		String apkFileName = null;
+		if(!attach.isEmpty()){
+			String path = request.getSession().getServletContext().getRealPath("statics"+File.separator+"uploadfiles");
+			String oldFileName = attach.getOriginalFilename();//原文件名
+			String suffix = FilenameUtils.getExtension(oldFileName);//原文件后缀
+			if(suffix.equalsIgnoreCase("apk")){
+				 AppInfo appInfo = deveAppInfoService.queryInfoByIdAndApk(appVersion.getAppId());
+				 String apkName = appInfo.getAPKName();
+				 apkFileName = apkName + "-" + appInfo.getVersionNo() + ".apk";//apk文件命名：apk名称+版本号+.apk
+				 File targetFile = new File(path,apkFileName);
+				 if(!targetFile.exists()){
+					 targetFile.mkdirs();
+				 }
+				 try {
+					attach.transferTo(targetFile);
+				} catch (Exception e) {
+					e.printStackTrace();
+					session.setAttribute("fileUploadError", "* apk文件上传失败！");
+				} 
+				downloadLink = request.getContextPath()+"/statics/uploadfiles/"+apkFileName;
+				apkLocPath = path+File.separator+apkFileName;
+			}else{
+				session.setAttribute("fileUploadError", "* 上传文件的格式不正确，请选择正确的apk格式的文件！");
+			}
+		}
+		DevUser user =(DevUser)session.getAttribute("user");
+		appVersion.setModifyBy(user.getId());
+		appVersion.setModifyDate(new Date());
+		appVersion.setDownloadLink(downloadLink);
+		appVersion.setApkLocPath(apkLocPath);
+		appVersion.setApkFileName(apkFileName);
+		try {
+			if(appVersionService.modifyAppVersion(appVersion)>0){
+				return "redirect:/user/info/appInfoList"; //新增成功跳转到app列表信息页
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return "developer/appversionmodify";
+	}
+
+	
+	/**
+	 * 删除APK文件
+	 * @param id
+	 * @return
+	 */
+	@RequestMapping(value = "/delapkfile", method = RequestMethod.GET)
+	@ResponseBody
+	public Object delApkFile(@RequestParam("id")Integer id) {
+		Map<String, String> map = new HashMap<String,String>();
+		if (id == null) {
+			map.put("result", "failed");
+		} else {
+			System.out.println(id);
+			//通过版本id查询指定的app版本详情信息
+			AppVersion appVersion = appVersionService.getAppVersionByVid(id);
+			String apkLocPath = appVersion.getApkLocPath(); //得到apk文件的绝对路径
+			/*利用apk文件的绝对路径创建File对象*/
+			File file = new File(apkLocPath);
+			if (file.exists()) {
+				if (file.delete()) {//如果file对象存在，就把该目录下的文件删除。即将服务器存储的物理文件删除
+					if(appVersionService.deleteApkFile(id)>0) {
+						map.put("result", "success");
+					}
+				}
+			} else {
+				map.put("result", "noexist"); //表示服务器指定目录中不存在该物理文件
+			}
+		}
+		return map;
+	}
+
+	
+	/**
+	 * 修改版本信息
+	 * @param vid
+	 * @param aid
+	 * @param model
+	 * @return
+	 */
 	@RequestMapping("/appversionmodify")
-	public String appversionmodify(@RequestParam("vid") Integer id) {
-		System.out.println(id);
-		return null;
+	public String appversionmodify(@RequestParam("vid") Integer vid,@RequestParam("aid") Integer aid,Model model) {
+		AppVersion appVersion = appVersionService.getAppVersionByVid(vid);//通过app版本的id查询app版本的详情信息
+		List<AppVersion> appVersionList = appVersionService.getAppVersionById(aid);  //根据app的id查询app的所有版本列表信息
+		model.addAttribute("appVersion",appVersion);
+		model.addAttribute("appVersionList",appVersionList);
+		return "developer/appversionmodify"; //转发到app版本修改页面
 	}
 	
 	/**

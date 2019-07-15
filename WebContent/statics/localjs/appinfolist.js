@@ -1,4 +1,4 @@
-$("#queryCategoryLevel1").change(function(){
+	$("#queryCategoryLevel1").change(function(){
 	var queryCategoryLevel1 = $("#queryCategoryLevel1").val();
 	if(queryCategoryLevel1 != '' && queryCategoryLevel1 != null){
 		$.ajax({
@@ -173,7 +173,7 @@ var saleSwitchAjax = function(appId,obj){
 
 $(".viewApp").on("click",function(){
 	var obj = $(this);
-	window.location.href="appview/"+ obj.attr("appinfoid");
+	window.location.href="../info/appview/"+ obj.attr("appinfoid");
 });
 
 $(".deleteApp").on("click",function(){
@@ -181,7 +181,7 @@ $(".deleteApp").on("click",function(){
 	if(confirm("你确定要删除APP应用【"+obj.attr("appsoftwarename")+"】及其所有的版本吗？")){
 		$.ajax({
 			type:"GET",
-			url:"delapp.json",
+			url:"../info/delapp",
 			data:{id:obj.attr("appinfoid")},
 			dataType:"json",
 			success:function(data){

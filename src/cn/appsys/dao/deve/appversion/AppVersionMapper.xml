@@ -4,6 +4,45 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="cn.appsys.dao.deve.appversion.AppVersionMapper">
+
+	<!-- 删除 -->
+	<delete id="deleteAppInfoById" parameterType="int">
+		delete from app_info where id = #{id}
+	</delete>
+
+	<!-- 修改保存 -->
+	<update id="modifyAppVersion" parameterType="AppVersion">
+		update app_version
+			<trim prefix="set" suffixOverrides="," suffix="where id=#{id}">
+				<if test="versionNo != null">versionNo=#{versionNo},</if>
+				<if test="versionInfo != null">versionInfo=#{versionInfo},</if>
+				<if test="publishStatus != null">publishStatus=#{publishStatus},</if>
+				<if test="downloadLink != null">downloadLink=#{downloadLink},</if>
+				<if test="apkLocPath != null">apkLocPath=#{apkLocPath},</if>
+				<if test="versionSize != null">versionSize=#{versionSize},</if>
+				<if test="apkFileName != null">apkFileName=#{apkFileName},</if>
+				<if test="modifyBy != null">modifyBy=#{modifyBy},</if>
+				<if test="modifyDate != null">modifyDate=#{modifyDate},</if>
+			</trim>
+	</update>
+		
+
+	<!-- 根据app版本id，将字段apkLocPath、apkFileName、downloadLink这三个字段给清空。 -->
+	<update id="deleteApkFile" parameterType="int">
+		update app_version 
+			set apkLocPath=null,
+				downloadLink=null,
+				apkFileName=null
+			where id = #{id}
+	</update>
+	
+
+
+	<!-- 通过app版本id查询app版本的详情对象信息 -->
+	<select id="getAppVersionByVid" parameterType="int" resultType="AppVersion">
+		SELECT * FROM `app_version` WHERE `id`= #{vid}
+	</select>
+	
 	
 	<!-- 根据APP的id查询版本列表信息 -->
 	<select id="getAppVersionById" resultType="AppVersion">
