@@ -1,6 +1,8 @@
 package cn.appsys.controller.deve;
 
 
+import java.util.List;
+
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -10,7 +12,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import cn.appsys.pojo.DataDictionary;
 import cn.appsys.pojo.DevUser;
+import cn.appsys.service.deve.datadictionary.DeveDictionaryService;
 import cn.appsys.service.deve.user.DeveLoginService;
 
 
@@ -19,8 +23,12 @@ import cn.appsys.service.deve.user.DeveLoginService;
 @RequestMapping("/deve")
 public class DeveLoginController {
 	
+	//登录用户Service
 	@Resource(name="deveLoginService")
 	private DeveLoginService deveLoginService;
+	
+	
+	
 	
 	/**
 	 * 开发者登录跳转
@@ -43,9 +51,10 @@ public class DeveLoginController {
 			@RequestParam("devCode") String devCode,
 			@RequestParam("devPassword") String devPassword,
 			HttpSession session) {
-			DevUser user = deveLoginService.login(devCode, devPassword);
+			DevUser user = deveLoginService.login(devCode, devPassword);	//调用方法获得用户信息
 			if (user != null) {
 				session.setAttribute("user", user);
+				
 				return "developer/main";
 			}else {
 				model.addAttribute("error", "账号或密码错误！");

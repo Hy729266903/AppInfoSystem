@@ -84,11 +84,11 @@
         </div>
         <div class="x_content" style="display: block;">
          <br>
-        <form class="form-horizontal form-label-left" action="addversionsave" method="post" enctype="multipart/form-data">
+        <form class="form-horizontal form-label-left" action="${pageContext.request.contextPath}/user/info/addversionsave" method="post" enctype="multipart/form-data">
            <input type="hidden" name="appId" name="appId" value="${appVersion.appId}">
           <div class="item form-group">
             <label class="control-label col-md-3 col-sm-3 col-xs-12" for="name">版本号 <span class="required">*</span>
-            </label>
+            </label>	
             <div class="col-md-6 col-sm-6 col-xs-12">
               <input id="versionNo" class="form-control col-md-7 col-xs-12" 
                data-validate-length-range="20" data-validate-words="1" name="versionNo"  

@@ -51,13 +51,13 @@
 		</mvc:message-converters>		
 	</mvc:annotation-driven>
 	
-	<!-- <mvc:interceptors>
+	 <mvc:interceptors>
 		<mvc:interceptor>
-			如果访问的路径中包含/user/关键字，那么当前请求就会被拦截器给拦截
+			<!-- 如果访问的路径中包含/user/关键字，那么当前请求就会被拦截器给拦截 -->
 			<mvc:mapping path="/user/**"/>
-			<bean class="cn.appsys.interceptor.SysInterceptor" />
+			<bean class="cn.appsys.interceptor.SysIntercetor" />
 		</mvc:interceptor>
-	</mvc:interceptors> -->
+	</mvc:interceptors> 
 
 	<!-- 配置多视图解析器 -->
 	<bean class="org.springframework.web.servlet.view.ContentNegotiatingViewResolver">

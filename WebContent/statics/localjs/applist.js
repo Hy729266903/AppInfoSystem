@@ -1,9 +1,10 @@
+var path = $("#path").val();  //得到的是 /项目名
 $("#queryCategoryLevel1").change(function(){
 	var queryCategoryLevel1 = $("#queryCategoryLevel1").val();
 	if(queryCategoryLevel1 != '' && queryCategoryLevel1 != null){
 		$.ajax({
 			type:"GET",//请求类型
-			url:"categorylevellist.json",//请求的url
+			url:"../info/queryCategoryByParentId",//请求的url
 			data:{pid:queryCategoryLevel1},//请求参数
 			dataType:"json",//ajax接口（请求url）返回的数据类型
 			success:function(data){//data：返回数据（json对象）
@@ -28,12 +29,14 @@ $("#queryCategoryLevel1").change(function(){
 	$("#queryCategoryLevel3").html(options);
 });
 
+//二级分类所在下拉框的值的改变事件
 $("#queryCategoryLevel2").change(function(){
+	//得到二级分类中用户选中的二级分类的ID
 	var queryCategoryLevel2 = $("#queryCategoryLevel2").val();
 	if(queryCategoryLevel2 != '' && queryCategoryLevel2 != null){
 		$.ajax({
 			type:"GET",//请求类型
-			url:"categorylevellist.json",//请求的url
+			url:path +"/info/queryCategoryByParentId",//请求的url
 			data:{pid:queryCategoryLevel2},//请求参数
 			dataType:"json",//ajax接口（请求url）返回的数据类型
 			success:function(data){//data：返回数据（json对象）
